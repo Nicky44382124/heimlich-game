@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🏥 海姆利克急救法 - 儿童学习游戏</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
@@ -18,701 +14,733 @@
             padding: 20px;
         }
 
-        .game-container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
+        .game-container { max-width: 900px; margin: 0 auto; }
 
-        /* 标题区 */
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
+        .header { text-align: center; margin-bottom: 25px; }
         .header h1 {
-            color: white;
-            font-size: 2.5rem;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-            margin-bottom: 10px;
+            color: white; font-size: 2.4rem;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3); margin-bottom: 8px;
         }
+        .header p { color: rgba(255,255,255,0.9); font-size: 1.05rem; }
 
-        .header p {
-            color: rgba(255,255,255,0.9);
-            font-size: 1.1rem;
+        .music-bar {
+            display: flex; justify-content: center;
+            gap: 12px; margin-bottom: 18px;
         }
+        .music-btn {
+            background: rgba(255,255,255,0.25);
+            border: 2px solid rgba(255,255,255,0.5);
+            color: white; padding: 8px 20px;
+            border-radius: 50px; font-size: 0.95rem;
+            cursor: pointer; transition: all 0.3s;
+            backdrop-filter: blur(4px);
+        }
+        .music-btn:hover { background: rgba(255,255,255,0.4); transform: scale(1.05); }
+        .music-btn.active { background: rgba(255,255,255,0.45); border-color: #ffd700; color: #ffd700; }
 
-        /* 分数和状态 */
         .game-status {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
+            display: flex; justify-content: center; gap: 40px;
+            margin-bottom: 25px; flex-wrap: wrap;
         }
-
         .status-item {
-            background: white;
-            padding: 12px 25px;
-            border-radius: 50px;
+            background: white; padding: 12px 25px; border-radius: 50px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #667eea;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 1.2rem; font-weight: bold; color: #667eea;
         }
+        .status-item span { font-size: 1.5rem; }
 
-        .status-item span {
-            font-size: 1.5rem;
-        }
-
-        /* 游戏区域 */
         .game-area {
-            background: white;
-            border-radius: 25px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            background: white; border-radius: 25px;
+            padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
 
-        /* 场景展示区 */
         .scene-area {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
+            display: flex; justify-content: center;
+            gap: 20px; margin-bottom: 25px; flex-wrap: wrap;
         }
-
         .scene-card {
-            width: 280px;
-            height: 200px;
+            width: 280px; height: 200px;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
-            position: relative;
-            overflow: hidden;
+            border-radius: 20px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 15px; position: relative; overflow: hidden;
+            transition: all 0.3s;
+        }
+        .scene-card.success { background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); }
+        .scene-card.error   { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+        .scene-emoji { font-size: 4rem; margin-bottom: 10px; }
+        .scene-text { font-size: 1rem; color: #333; text-align: center; font-weight: bold; }
+
+        .praise-popup {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 4.5rem;
+            font-weight: 900;
+            color: #fff200;
+            text-shadow:
+                0 0 10px #ff6600,
+                3px 3px 0 #e67e00,
+                6px 6px 0 #c0392b,
+                0 0 40px rgba(255,200,0,0.8);
+            z-index: 2000;
+            pointer-events: none;
+            white-space: nowrap;
+            letter-spacing: 6px;
+            animation: none;
+            -webkit-text-stroke: 2px #e67e00;
+        }
+        .praise-popup.show {
+            animation: praisePop 1.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes praisePop {
+            0%   { transform: translate(-50%, -50%) scale(0) rotate(-15deg); opacity: 0; filter: blur(8px); }
+            20%  { transform: translate(-50%, -50%) scale(1.5) rotate(5deg); opacity: 1; filter: blur(0); }
+            40%  { transform: translate(-50%, -50%) scale(1.2) rotate(-3deg); opacity: 1; }
+            55%  { transform: translate(-50%, -50%) scale(1.35) rotate(2deg); opacity: 1; }
+            70%  { transform: translate(-50%, -50%) scale(1.25) rotate(0deg); opacity: 1; }
+            85%  { transform: translate(-50%, -55%) scale(1.1) rotate(0deg); opacity: 0.8; }
+            100% { transform: translate(-50%, -70%) scale(0.8) rotate(0deg); opacity: 0; }
         }
 
-        .scene-card.success {
-            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+        .star-burst {
+            position: fixed; pointer-events: none;
+            z-index: 1999; font-size: 2rem;
+            animation: starFly 1s ease-out forwards;
+        }
+        @keyframes starFly {
+            0%   { transform: translate(0,0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(0.3); opacity: 0; }
         }
 
-        .scene-card.error {
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        .screen-flash {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 240, 0, 0.35);
+            z-index: 1998; pointer-events: none;
+            animation: flashFade 0.4s ease-out forwards;
+        }
+        @keyframes flashFade {
+            0%   { opacity: 1; }
+            100% { opacity: 0; }
         }
 
-        .scene-emoji {
-            font-size: 4rem;
-            margin-bottom: 10px;
-        }
-
-        .scene-text {
-            font-size: 1rem;
-            color: #333;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        /* 提示区 */
-        .hint-area {
-            text-align: center;
-            margin-bottom: 20px;
-            min-height: 60px;
-        }
-
+        .hint-area { text-align: center; margin-bottom: 20px; min-height: 60px; }
         .hint-text {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 15px;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            display: inline-block; background: #667eea; color: white;
+            padding: 12px 25px; border-radius: 15px; font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.4);
         }
 
-        /* 进度条 */
         .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #e0e0e0;
-            border-radius: 5px;
-            margin-bottom: 25px;
-            overflow: hidden;
+            width: 100%; height: 10px; background: #e0e0e0;
+            border-radius: 5px; margin-bottom: 25px; overflow: hidden;
         }
-
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            border-radius: 5px;
-            transition: width 0.5s ease;
+            border-radius: 5px; transition: width 0.5s ease;
         }
 
-        /* 卡片区域 */
-        .cards-section {
-            margin-bottom: 20px;
-        }
-
+        .cards-section { margin-bottom: 20px; }
         .cards-section-title {
-            text-align: center;
-            color: #888;
-            font-size: 1rem;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            text-align: center; color: #888; font-size: 1rem;
+            margin-bottom: 12px; display: flex;
+            align-items: center; justify-content: center; gap: 8px;
         }
-
-        /* 已选卡片区域 */
         .selected-cards-area {
             background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            min-height: 60px;
+            border-radius: 15px; padding: 15px; margin-bottom: 20px; min-height: 60px;
         }
-
         .selected-cards-area:empty::after {
-            content: '答对的卡片会出现在这里';
-            color: #555;
-            font-style: italic;
+            content: '答对的卡片会出现在这里'; color: #555; font-style: italic;
         }
-
-        /* 待选卡片区域 */
         .available-cards-area {
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
-            border-radius: 15px;
-            padding: 15px;
+            border-radius: 15px; padding: 15px;
         }
-
         .cards-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
+            display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
         }
 
         .step-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-            text-align: center;
-            min-width: 200px;
-            max-width: 250px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            color: white; padding: 15px 20px; border-radius: 15px;
+            cursor: pointer; transition: all 0.3s ease; font-size: 0.95rem;
+            text-align: center; min-width: 200px; max-width: 250px;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.3);
             border: 3px solid transparent;
         }
-
-        .step-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-        }
-
+        .step-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(102,126,234,0.5); }
         .step-card.selected {
-            border-color: #ffd700;
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            border-color: #ffd700; transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255,215,0,0.6);
         }
-
         .step-card.wrong {
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-            color: #666;
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
+            color: #666; opacity: 0.6; cursor: not-allowed; transform: none;
         }
-
-        /* 已选卡片的样式 */
         .step-card.selected-card {
             background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-            color: white;
-            cursor: default;
+            color: white; cursor: default;
             border: 3px solid #ffd700;
-            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+            box-shadow: 0 4px 15px rgba(39,174,96,0.4);
             animation: popIn 0.4s ease;
         }
 
-        @keyframes popIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            70% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        /* 重新开始按钮 */
         .restart-btn {
-            display: block;
-            margin: 25px auto 0;
+            display: block; margin: 25px auto 0;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            color: white; border: none; padding: 15px 40px;
+            border-radius: 50px; font-size: 1.2rem; cursor: pointer;
+            transition: all 0.3s; box-shadow: 0 4px 15px rgba(245,87,108,0.4);
         }
+        .restart-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(245,87,108,0.5); }
 
-        .restart-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.5);
-        }
-
-        /* 结果弹窗 */
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.7);
+            justify-content: center; align-items: center; z-index: 1000;
         }
-
-        .modal.show {
-            display: flex;
-        }
-
+        .modal.show { display: flex; }
         .modal-content {
-            background: white;
-            padding: 40px;
-            border-radius: 25px;
-            text-align: center;
-            max-width: 500px;
-            animation: popIn 0.5s ease;
+            background: white; padding: 40px; border-radius: 25px;
+            text-align: center; max-width: 500px; animation: popIn 0.5s ease;
         }
-
-        .modal-emoji {
-            font-size: 5rem;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            color: #667eea;
-            font-size: 2rem;
-            margin-bottom: 15px;
-        }
-
-        .modal-text {
-            color: #666;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 25px;
-        }
-
+        .modal-emoji { font-size: 5rem; margin-bottom: 20px; }
+        .modal-title { color: #667eea; font-size: 2rem; margin-bottom: 15px; }
+        .modal-text { color: #666; font-size: 1.1rem; line-height: 1.6; margin-bottom: 25px; }
         .modal-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            color: white; border: none; padding: 15px 40px;
+            border-radius: 50px; font-size: 1.2rem; cursor: pointer; transition: all 0.3s;
         }
+        .modal-btn:hover { transform: scale(1.05); }
+        .stars { font-size: 2rem; margin: 15px 0; }
 
-        .modal-btn:hover {
-            transform: scale(1.05);
-        }
-
-        /* 星星动画 */
-        .stars {
-            font-size: 2rem;
-            margin: 15px 0;
-        }
-
-        /* 底部信息 */
         .footer {
-            text-align: center;
-            margin-top: 30px;
-            color: rgba(255,255,255,0.8);
-            font-size: 0.9rem;
+            text-align: center; margin-top: 30px;
+            color: rgba(255,255,255,0.8); font-size: 0.9rem;
         }
 
-        /* 响应式 */
+        @keyframes popIn {
+            0%   { transform: scale(0.5); opacity: 0; }
+            70%  { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25%  { transform: translateX(-12px); }
+            75%  { transform: translateX(12px); }
+        }
+
         @media (max-width: 600px) {
-            .header h1 {
-                font-size: 1.8rem;
-            }
-            .scene-card {
-                width: 100%;
-                height: auto;
-                min-height: 150px;
-            }
-            .step-card {
-                min-width: 150px;
-                font-size: 0.85rem;
-            }
+            .header h1 { font-size: 1.8rem; }
+            .scene-card { width: 100%; height: auto; min-height: 150px; }
+            .step-card { min-width: 150px; font-size: 0.85rem; }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <!-- 标题 -->
-        <div class="header">
-            <h1>🏥 海姆利克急救法学习游戏</h1>
-            <p>帮助小朋友学习如何正确救助窒息的人</p>
-        </div>
 
-        <!-- 游戏状态 -->
-        <div class="game-status">
-            <div class="status-item">
-                <span>⭐</span>
-                <span id="score">0</span> 分
-            </div>
-            <div class="status-item">
-                <span>🔢</span>
-                第 <span id="currentStep">1</span> / <span id="totalSteps">8</span> 步
-            </div>
-        </div>
+<div class="praise-popup" id="praisePopup"></div>
 
-        <!-- 游戏区域 -->
-        <div class="game-area">
-            <!-- 场景展示 -->
-            <div class="scene-area" id="sceneArea">
-                <!-- 动态生成 -->
-            </div>
-
-            <!-- 提示 -->
-            <div class="hint-area">
-                <div class="hint-text" id="hintText">
-                    👇 请按正确顺序点击卡片
-                </div>
-            </div>
-
-            <!-- 进度条 -->
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-            </div>
-
-            <!-- 已选卡片区域 -->
-            <div class="cards-section">
-                <div class="cards-section-title">✅ 已选择的步骤</div>
-                <div class="selected-cards-area" id="selectedCardsArea">
-                    <!-- 答对的卡片会移动到这里 -->
-                </div>
-            </div>
-
-            <!-- 待选卡片区域 -->
-            <div class="cards-section">
-                <div class="cards-section-title">🎯 请选择下一步</div>
-                <div class="available-cards-area">
-                    <div class="cards-container" id="cardsContainer">
-                        <!-- 动态生成 -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- 重新开始 -->
-            <button class="restart-btn" onclick="restartGame()">🔄 重新开始</button>
-        </div>
-
-        <!-- 底部 -->
-        <div class="footer">
-            💡 记住：遇到紧急情况，要马上找大人帮忙！
-        </div>
+<div class="game-container">
+    <div class="header">
+        <h1>🏥 海姆利克急救法学习游戏</h1>
+        <p>帮助小朋友学习如何正确救助窒息的人</p>
     </div>
 
-    <!-- 结果弹窗 -->
-    <div class="modal" id="resultModal">
-        <div class="modal-content">
-            <div class="modal-emoji" id="modalEmoji">🎉</div>
-            <div class="modal-title" id="modalTitle">太棒了！</div>
-            <div class="stars" id="modalStars">⭐⭐⭐</div>
-            <div class="modal-text" id="modalText">
-                你已经学会了海姆利克急救法的正确步骤！
-            </div>
-            <button class="modal-btn" onclick="closeModal()">继续练习</button>
-        </div>
+    <div class="music-bar">
+        <button class="music-btn active" id="bgmBtn" onclick="toggleBGM()">🎵 背景音乐：开</button>
+        <button class="music-btn active" id="sfxBtn" onclick="toggleSFX()">🔊 音效：开</button>
     </div>
 
-    <script>
-        // 海姆利克急救法8步骤（儿童版）
-        const steps = [
-            {
-                id: 1,
-                text: "🔍 发现有人呛到了",
-                emoji: "😰"
-            },
-            {
-                id: 2,
-                text: "🧍 站到他的身后",
-                emoji: "👆"
-            },
-            {
-                id: 3,
-                text: "🤗 双手环抱他的腰部",
-                emoji: "💪"
-            },
-            {
-                id: 4,
-                text: "✌️ 一手做剪刀状，放在肚脐上部",
-                emoji: "✌️"
-            },
-            {
-                id: 5,
-                text: "✊ 另一手握拳放在上部，拳眼贴腹部",
-                emoji: "🤜"
-            },
-            {
-                id: 6,
-                text: "☀️ 用另一只手包住拳头",
-                emoji: "🤝"
-            },
-            {
-                id: 7,
-                text: "💥 快速向内上方推压",
-                emoji: "💨"
-            },
-            {
-                id: 8,
-                text: "🔄 重复推压直到东西出来",
-                emoji: "🏆"
-            }
-        ];
+    <div class="game-status">
+        <div class="status-item"><span>⭐</span><span id="score">0</span> 分</div>
+        <div class="status-item"><span>🔢</span>第 <span id="currentStep">1</span> / <span id="totalSteps">8</span> 步</div>
+    </div>
 
-        // 游戏状态
-        let gameState = {
-            currentStep: 0,
-            score: 0,
-            correctAnswers: 0,
-            totalSteps: steps.length,
-            selectedCard: null,
-            isAnimating: false,
-            usedCards: new Set() // 记录已使用的卡片ID
-        };
+    <div class="game-area">
+        <div class="scene-area" id="sceneArea"></div>
 
-        // 初始化游戏
-        function initGame() {
-            gameState = {
-                currentStep: 0,
-                score: 0,
-                correctAnswers: 0,
-                totalSteps: steps.length,
-                selectedCard: null,
-                isAnimating: false,
-                usedCards: new Set()
-            };
-            
-            // 清空已选卡片区域
-            document.getElementById('selectedCardsArea').innerHTML = '';
-            
-            updateUI();
-            renderSceneArea();
+        <div class="hint-area">
+            <div class="hint-text" id="hintText">👇 请按正确顺序点击卡片</div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+
+        <div class="cards-section">
+            <div class="cards-section-title">✅ 已选择的步骤</div>
+            <div class="selected-cards-area" id="selectedCardsArea"></div>
+        </div>
+
+        <div class="cards-section">
+            <div class="cards-section-title">🎯 请选择下一步</div>
+            <div class="available-cards-area">
+                <div class="cards-container" id="cardsContainer"></div>
+            </div>
+        </div>
+
+        <button class="restart-btn" onclick="restartGame()">🔄 重新开始</button>
+    </div>
+
+    <div class="footer">💡 记住：遇到紧急情况，要马上找大人帮忙！</div>
+</div>
+
+<div class="modal" id="resultModal">
+    <div class="modal-content">
+        <div class="modal-emoji" id="modalEmoji">🎉</div>
+        <div class="modal-title" id="modalTitle">太棒了！</div>
+        <div class="stars" id="modalStars">⭐⭐⭐</div>
+        <div class="modal-text" id="modalText">你已经学会了海姆利克急救法的正确步骤！</div>
+        <button class="modal-btn" onclick="closeModal()">继续练习</button>
+    </div>
+</div>
+
+<script>
+// ===== 音频引擎 =====
+let audioCtx = null;
+let bgmEnabled = true;
+let sfxEnabled = true;
+let bgmGain = null;
+let bgmPlaying = false;
+let bgmInterval = null;
+
+function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+}
+
+const NOTE = {
+    C4:261.63, D4:293.66, E4:329.63, F4:349.23,
+    G4:392.00, A4:440.00, B4:493.88,
+    C5:523.25, D5:587.33, E5:659.25, G5:783.99,
+    C3:130.81, G3:196.00, E3:164.81
+};
+
+const MELODY = [
+    [NOTE.E4,0.25],[NOTE.E4,0.25],[NOTE.E4,0.5],
+    [NOTE.C4,0.25],[NOTE.E4,0.5],[NOTE.G4,0.75],[NOTE.G3,0.75],
+    [NOTE.C4,0.5],[NOTE.G3,0.5],[NOTE.E3,0.5],
+    [NOTE.A4,0.5],[NOTE.B4,0.5],[NOTE.A4,0.25],[NOTE.G3,0.25],
+    [NOTE.G4,0.33],[NOTE.B4,0.33],[NOTE.C5,0.34],
+    [NOTE.E4,0.25],[NOTE.E4,0.25],[NOTE.E4,0.5],
+    [NOTE.C4,0.25],[NOTE.E4,0.5],[NOTE.G4,1.0]
+];
+
+function playBGMLoop() {
+    if (!bgmEnabled || !bgmPlaying) return;
+    const ctx = getAudioCtx();
+    bgmGain = ctx.createGain();
+    bgmGain.gain.setValueAtTime(0.12, ctx.currentTime);
+    bgmGain.connect(ctx.destination);
+
+    let t = ctx.currentTime + 0.05;
+    let totalDur = 0;
+
+    MELODY.forEach(([freq, dur]) => {
+        const osc = ctx.createOscillator();
+        const env = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, t);
+        env.gain.setValueAtTime(0, t);
+        env.gain.linearRampToValueAtTime(0.7, t + 0.02);
+        env.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.92);
+        osc.connect(env);
+        env.connect(bgmGain);
+        osc.start(t);
+        osc.stop(t + dur);
+
+        const osc2 = ctx.createOscillator();
+        const env2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(freq * 0.5, t);
+        env2.gain.setValueAtTime(0, t);
+        env2.gain.linearRampToValueAtTime(0.25, t + 0.02);
+        env2.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.8);
+        osc2.connect(env2);
+        env2.connect(bgmGain);
+        osc2.start(t);
+        osc2.stop(t + dur);
+
+        t += dur;
+        totalDur += dur;
+    });
+
+    bgmInterval = setTimeout(playBGMLoop, totalDur * 1000 + 200);
+}
+
+function startBGM() {
+    bgmPlaying = true;
+    clearTimeout(bgmInterval);
+    playBGMLoop();
+}
+
+function stopBGM() {
+    bgmPlaying = false;
+    clearTimeout(bgmInterval);
+    if (bgmGain) {
+        try { bgmGain.gain.linearRampToValueAtTime(0, getAudioCtx().currentTime + 0.3); } catch(e) {}
+    }
+}
+
+function toggleBGM() {
+    bgmEnabled = !bgmEnabled;
+    const btn = document.getElementById('bgmBtn');
+    if (bgmEnabled) {
+        btn.textContent = '🎵 背景音乐：开';
+        btn.classList.add('active');
+        startBGM();
+    } else {
+        btn.textContent = '🎵 背景音乐：关';
+        btn.classList.remove('active');
+        stopBGM();
+    }
+}
+
+function toggleSFX() {
+    sfxEnabled = !sfxEnabled;
+    const btn = document.getElementById('sfxBtn');
+    if (sfxEnabled) {
+        btn.textContent = '🔊 音效：开';
+        btn.classList.add('active');
+    } else {
+        btn.textContent = '🔊 音效：关';
+        btn.classList.remove('active');
+    }
+}
+
+/* 答对升调音效 */
+function playCorrectSFX() {
+    if (!sfxEnabled) return;
+    const ctx = getAudioCtx();
+    const masterGain = ctx.createGain();
+    masterGain.gain.setValueAtTime(0.45, ctx.currentTime);
+    masterGain.connect(ctx.destination);
+
+    const notes = [
+        [523.25, 0, 'triangle'],
+        [659.25, 0.10, 'triangle'],
+        [783.99, 0.20, 'triangle'],
+        [1046.5, 0.32, 'square'],
+    ];
+    notes.forEach(([freq, delay, type]) => {
+        const o = ctx.createOscillator();
+        const e = ctx.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+        o.frequency.linearRampToValueAtTime(freq * 1.02, ctx.currentTime + delay + 0.18);
+        e.gain.setValueAtTime(0, ctx.currentTime + delay);
+        e.gain.linearRampToValueAtTime(0.8, ctx.currentTime + delay + 0.02);
+        e.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.28);
+        o.connect(e); e.connect(masterGain);
+        o.start(ctx.currentTime + delay);
+        o.stop(ctx.currentTime + delay + 0.3);
+    });
+
+    const hiFreqs = [2093, 2637];
+    hiFreqs.forEach((freq, i) => {
+        const o = ctx.createOscillator();
+        const e = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(freq, ctx.currentTime + 0.32 + i * 0.05);
+        e.gain.setValueAtTime(0.4, ctx.currentTime + 0.32 + i * 0.05);
+        e.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.72 + i * 0.05);
+        o.connect(e); e.connect(masterGain);
+        o.start(ctx.currentTime + 0.32 + i * 0.05);
+        o.stop(ctx.currentTime + 0.75 + i * 0.05);
+    });
+}
+
+/* 答错机械音效 */
+function playWrongSFX() {
+    if (!sfxEnabled) return;
+    const ctx = getAudioCtx();
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.35, ctx.currentTime);
+    g.connect(ctx.destination);
+
+    [[200, 0], [160, 0.15], [120, 0.30]].forEach(([freq, delay]) => {
+        const o = ctx.createOscillator();
+        const e = ctx.createGain();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+        o.frequency.linearRampToValueAtTime(80, ctx.currentTime + delay + 0.15);
+        e.gain.setValueAtTime(0.5, ctx.currentTime + delay);
+        e.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.22);
+        o.connect(e); e.connect(g);
+        o.start(ctx.currentTime + delay);
+        o.stop(ctx.currentTime + delay + 0.25);
+    });
+
+    [0.05, 0.22, 0.39].forEach(delay => {
+        const buf = ctx.createBuffer(1, ctx.sampleRate * 0.06, ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.5;
+        const src = ctx.createBufferSource();
+        const e = ctx.createGain();
+        src.buffer = buf;
+        e.gain.setValueAtTime(0.4, ctx.currentTime + delay);
+        e.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.06);
+        src.connect(e); e.connect(g);
+        src.start(ctx.currentTime + delay);
+    });
+}
+
+/* 完成关卡号角音效 */
+function playFinishSFX() {
+    if (!sfxEnabled) return;
+    const ctx = getAudioCtx();
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.25, ctx.currentTime);
+    g.connect(ctx.destination);
+
+    const fanfare = [
+        [523.25,0],[659.25,0.1],[783.99,0.2],[1046.5,0.3],
+        [783.99,0.45],[880,0.55],[1046.5,0.68]
+    ];
+    fanfare.forEach(([freq, delay]) => {
+        const o = ctx.createOscillator();
+        const e = ctx.createGain();
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+        e.gain.setValueAtTime(0.6, ctx.currentTime + delay);
+        e.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.25);
+        o.connect(e); e.connect(g);
+        o.start(ctx.currentTime + delay);
+        o.stop(ctx.currentTime + delay + 0.3);
+    });
+}
+
+/* 鼓励词语音（只说一遍，超高能量） */
+const PRAISE_WORDS = ['AMAZING!', 'EXCELLENT!', 'UNBELIEVABLE!', 'PERFECT!', 'AWESOME!', 'FANTASTIC!', 'INCREDIBLE!', 'BRILLIANT!'];
+let praiseIdx = 0;
+
+function showPraisePopup(word) {
+    const el = document.getElementById('praisePopup');
+    el.textContent = word;
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 1700);
+}
+
+function triggerScreenFlash() {
+    const flash = document.createElement('div');
+    flash.className = 'screen-flash';
+    document.body.appendChild(flash);
+    setTimeout(() => flash.remove(), 500);
+}
+
+function triggerStarBurst() {
+    const emojis = ['⭐','🌟','✨','💫','🎉','🎊'];
+    for (let i = 0; i < 10; i++) {
+        const star = document.createElement('div');
+        star.className = 'star-burst';
+        star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        const angle = (i / 10) * 360;
+        const dist = 120 + Math.random() * 100;
+        star.style.setProperty('--dx', Math.cos(angle * Math.PI / 180) * dist + 'px');
+        star.style.setProperty('--dy', Math.sin(angle * Math.PI / 180) * dist + 'px');
+        star.style.left = '50%';
+        star.style.top = '50%';
+        star.style.animationDelay = (Math.random() * 0.15) + 's';
+        document.body.appendChild(star);
+        setTimeout(() => star.remove(), 1200);
+    }
+}
+
+function speakPraise(word) {
+    if (!sfxEnabled) return;
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(word.replace('!', ''));
+        utter.lang = 'en-US';
+        utter.rate = 1.45;
+        utter.pitch = 1.9;
+        utter.volume = 1;
+        window.speechSynthesis.speak(utter);
+    }
+}
+
+function triggerPraise() {
+    const word = PRAISE_WORDS[praiseIdx % PRAISE_WORDS.length];
+    praiseIdx++;
+    showPraisePopup(word);
+    speakPraise(word);
+    playCorrectSFX();
+    triggerScreenFlash();
+    triggerStarBurst();
+}
+
+// ===== 游戏逻辑 =====
+const steps = [
+    { id:1, text:"🔍 发现有人呛到了", emoji:"😰" },
+    { id:2, text:"🧍 站到他的身后", emoji:"👆" },
+    { id:3, text:"🤗 双手环抱他的腰部", emoji:"💪" },
+    { id:4, text:"✌️ 一手做剪刀状，放在肚脐上部", emoji:"✌️" },
+    { id:5, text:"✊ 另一手握拳放在上部，拳眼贴腹部", emoji:"🤜" },
+    { id:6, text:"☀️ 用另一只手包住拳头", emoji:"🤝" },
+    { id:7, text:"💥 快速向内上方推压", emoji:"💨" },
+    { id:8, text:"🔄 重复推压直到东西出来", emoji:"🏆" }
+];
+
+let gameState = {
+    currentStep: 0, score: 0, correctAnswers: 0,
+    totalSteps: steps.length, selectedCard: null,
+    isAnimating: false, usedCards: new Set()
+};
+
+function initGame() {
+    gameState = {
+        currentStep: 0, score: 0, correctAnswers: 0,
+        totalSteps: steps.length, selectedCard: null,
+        isAnimating: false, usedCards: new Set()
+    };
+    praiseIdx = 0;
+    document.getElementById('selectedCardsArea').innerHTML = '';
+    updateUI();
+    renderSceneArea();
+    renderCards();
+    if (bgmEnabled && !bgmPlaying) startBGM();
+}
+
+function updateUI() {
+    document.getElementById('score').textContent = gameState.score;
+    document.getElementById('currentStep').textContent = gameState.currentStep + 1;
+    document.getElementById('totalSteps').textContent = gameState.totalSteps;
+    const pct = (gameState.currentStep / gameState.totalSteps) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function renderSceneArea() {
+    const container = document.getElementById('sceneArea');
+    container.innerHTML = '';
+
+    const currentCard = document.createElement('div');
+    currentCard.className = 'scene-card';
+    currentCard.id = 'currentScene';
+    currentCard.innerHTML = `<div class="scene-emoji">🤔</div><div class="scene-text">等待选择...</div>`;
+    container.appendChild(currentCard);
+
+    const completedCard = document.createElement('div');
+    completedCard.className = 'scene-card';
+    completedCard.innerHTML = `
+        <div class="scene-emoji">✅</div>
+        <div class="scene-text">已完成 ${gameState.currentStep} / ${gameState.totalSteps} 步</div>`;
+    container.appendChild(completedCard);
+}
+
+function renderCards() {
+    const container = document.getElementById('cardsContainer');
+    container.innerHTML = '';
+    if (gameState.currentStep >= gameState.totalSteps) return;
+
+    const shuffled = [...steps].sort(() => Math.random() - 0.5);
+    shuffled.forEach(step => {
+        if (gameState.usedCards.has(step.id)) return;
+        const card = document.createElement('div');
+        card.className = 'step-card';
+        card.dataset.id = step.id;
+        card.innerHTML = step.text;
+        card.onclick = () => selectCard(step, card);
+        container.appendChild(card);
+    });
+}
+
+function selectCard(step, cardElement) {
+    if (gameState.isAnimating) return;
+    document.querySelectorAll('.step-card').forEach(c => c.classList.remove('selected'));
+    cardElement.classList.add('selected');
+    gameState.selectedCard = step;
+    setTimeout(() => checkAnswer(step, cardElement), 500);
+}
+
+function checkAnswer(step, cardElement) {
+    gameState.isAnimating = true;
+    const currentStep = steps[gameState.currentStep];
+    const isCorrect = step.id === currentStep.id;
+    const sceneCard = document.getElementById('currentScene');
+
+    if (isCorrect) {
+        cardElement.classList.remove('selected');
+        cardElement.classList.add('selected-card');
+        cardElement.style.cursor = 'default';
+        cardElement.onclick = null;
+        document.getElementById('selectedCardsArea').appendChild(cardElement);
+
+        sceneCard.className = 'scene-card success';
+        sceneCard.innerHTML = `<div class="scene-emoji">${step.emoji}</div><div class="scene-text">${step.text}</div>`;
+
+        gameState.score += 10;
+        gameState.correctAnswers++;
+        gameState.usedCards.add(step.id);
+        gameState.currentStep++;
+
+        triggerPraise();
+
+        sceneCard.style.transform = 'scale(1.1)';
+        setTimeout(() => { sceneCard.style.transform = 'scale(1)'; }, 300);
+
+    } else {
+        cardElement.classList.remove('selected');
+        cardElement.classList.add('wrong');
+        cardElement.style.pointerEvents = 'none';
+
+        sceneCard.className = 'scene-card error';
+        sceneCard.innerHTML = `<div class="scene-emoji">🤔</div><div class="scene-text">选错了，再想想！</div>`;
+
+        playWrongSFX();
+
+        sceneCard.style.animation = 'shake 0.5s ease';
+        setTimeout(() => { sceneCard.style.animation = ''; }, 500);
+    }
+
+    setTimeout(() => {
+        updateUI();
+        gameState.isAnimating = false;
+        if (gameState.currentStep >= gameState.totalSteps) {
+            playFinishSFX();
+            setTimeout(showResult, 600);
+        } else {
             renderCards();
         }
+    }, 1000);
+}
 
-        // 更新UI
-        function updateUI() {
-            document.getElementById('score').textContent = gameState.score;
-            document.getElementById('currentStep').textContent = gameState.currentStep + 1;
-            document.getElementById('totalSteps').textContent = gameState.totalSteps;
+function showResult() {
+    const modal = document.getElementById('resultModal');
+    const allCorrect = gameState.correctAnswers === gameState.totalSteps;
+    const mostCorrect = gameState.correctAnswers >= gameState.totalSteps * 0.7;
+    document.getElementById('modalStars').textContent = allCorrect ? '⭐⭐⭐' : mostCorrect ? '⭐⭐' : '⭐';
+    document.getElementById('modalEmoji').textContent = allCorrect ? '🎉' : mostCorrect ? '👏' : '💪';
+    document.getElementById('modalTitle').textContent = allCorrect ? '太棒了！满分！' : '做得很好！';
+    document.getElementById('modalText').innerHTML =
+        `你获得了 <strong>${gameState.score}</strong> 分！<br><br>` +
+        `💡 重要提醒：遇到有人窒息，要马上找大人帮忙！<br>小朋友学会后，可以在大人做急救时帮忙拨打120！`;
+    modal.classList.add('show');
+}
 
-            const progress = (gameState.currentStep / gameState.totalSteps) * 100;
-            document.getElementById('progressFill').style.width = progress + '%';
-        }
+function closeModal() {
+    document.getElementById('resultModal').classList.remove('show');
+    initGame();
+}
 
-        // 渲染场景区域
-        function renderSceneArea() {
-            const container = document.getElementById('sceneArea');
-            container.innerHTML = '';
+function restartGame() {
+    if (bgmEnabled && !bgmPlaying) startBGM();
+    initGame();
+}
 
-            // 左边：当前步骤图示
-            const currentCard = document.createElement('div');
-            currentCard.className = 'scene-card';
-            currentCard.id = 'currentScene';
-            currentCard.innerHTML = `
-                <div class="scene-emoji">🤔</div>
-                <div class="scene-text">等待选择...</div>
-            `;
-            container.appendChild(currentCard);
+document.addEventListener('click', () => {
+    if (bgmEnabled && !bgmPlaying) startBGM();
+}, { once: true });
 
-            // 右边：已完成的步骤
-            const completedCard = document.createElement('div');
-            completedCard.className = 'scene-card';
-            completedCard.innerHTML = `
-                <div class="scene-emoji">✅</div>
-                <div class="scene-text">已完成 ${gameState.currentStep} / ${gameState.totalSteps} 步</div>
-            `;
-            container.appendChild(completedCard);
-        }
-
-        // 渲染待选卡片
-        function renderCards() {
-            const container = document.getElementById('cardsContainer');
-            container.innerHTML = '';
-
-            if (gameState.currentStep >= gameState.totalSteps) {
-                return;
-            }
-
-            // 随机打乱步骤顺序
-            const shuffledSteps = [...steps].sort(() => Math.random() - 0.5);
-
-            shuffledSteps.forEach(step => {
-                // 跳过已使用的卡片
-                if (gameState.usedCards.has(step.id)) {
-                    return;
-                }
-                
-                const card = document.createElement('div');
-                card.className = 'step-card';
-                card.dataset.id = step.id;
-                card.innerHTML = step.text;
-                card.onclick = () => selectCard(step, card);
-                container.appendChild(card);
-            });
-        }
-
-        // 选择卡片
-        function selectCard(step, cardElement) {
-            if (gameState.isAnimating) {
-                return;
-            }
-
-            // 清除之前的选中状态
-            document.querySelectorAll('.step-card').forEach(c => c.classList.remove('selected'));
-
-            // 选中当前卡片
-            cardElement.classList.add('selected');
-            gameState.selectedCard = step;
-
-            // 延迟后检查答案
-            setTimeout(() => {
-                checkAnswer(step, cardElement);
-            }, 500);
-        }
-
-        // 检查答案
-        function checkAnswer(step, cardElement) {
-            gameState.isAnimating = true;
-
-            const currentStep = steps[gameState.currentStep];
-            const isCorrect = step.id === currentStep.id;
-
-            const sceneCard = document.getElementById('currentScene');
-
-            if (isCorrect) {
-                // 正确 - 卡片移动到上方绿色区域
-                cardElement.classList.remove('selected');
-                cardElement.classList.add('selected-card');
-                cardElement.style.cursor = 'default';
-                
-                // 移动到已选区域
-                const selectedArea = document.getElementById('selectedCardsArea');
-                selectedArea.appendChild(cardElement);
-
-                sceneCard.className = 'scene-card success';
-                sceneCard.innerHTML = `
-                    <div class="scene-emoji">${step.emoji}</div>
-                    <div class="scene-text">${step.text}</div>
-                `;
-
-                gameState.score += 10;
-                gameState.correctAnswers++;
-                gameState.usedCards.add(step.id);
-                gameState.currentStep++;
-
-                // 添加成功动画效果
-                showSuccessAnimation(sceneCard);
-
-            } else {
-                // 错误 - 卡片变红并禁用
-                cardElement.classList.remove('selected');
-                cardElement.classList.add('wrong');
-                cardElement.style.pointerEvents = 'none'; // 禁用点击
-
-                sceneCard.className = 'scene-card error';
-                sceneCard.innerHTML = `
-                    <div class="scene-emoji">🤔</div>
-                    <div class="scene-text">选错了，再想想！</div>
-                `;
-
-                // 添加抖动动画
-                showErrorAnimation(sceneCard);
-            }
-
-            setTimeout(() => {
-                updateUI();
-                gameState.isAnimating = false;
-
-                // 检查是否完成
-                if (gameState.currentStep >= gameState.totalSteps) {
-                    showResult();
-                } else {
-                    renderCards();
-                }
-            }, 1000);
-        }
-
-        // 成功动画
-        function showSuccessAnimation(element) {
-            element.style.transform = 'scale(1.1)';
-            element.style.transition = 'transform 0.3s ease';
-            setTimeout(() => {
-                element.style.transform = 'scale(1)';
-            }, 300);
-        }
-
-        // 错误动画
-        function showErrorAnimation(element) {
-            element.style.animation = 'shake 0.5s ease';
-            setTimeout(() => {
-                element.style.animation = '';
-            }, 500);
-        }
-
-        // 显示结果
-        function showResult() {
-            const modal = document.getElementById('resultModal');
-            const stars = gameState.correctAnswers === gameState.totalSteps ? '⭐⭐⭐' :
-                          gameState.correctAnswers >= gameState.totalSteps * 0.7 ? '⭐⭐' : '⭐';
-
-            document.getElementById('modalStars').textContent = stars;
-            document.getElementById('modalEmoji').textContent =
-                gameState.correctAnswers === gameState.totalSteps ? '🎉' :
-                gameState.correctAnswers >= gameState.totalSteps * 0.7 ? '👏' : '💪';
-            document.getElementById('modalTitle').textContent =
-                gameState.correctAnswers === gameState.totalSteps ? '太棒了！满分！' :
-                '做得很好！';
-            document.getElementById('modalText').innerHTML =
-                `你获得了 <strong>${gameState.score}</strong> 分！<br><br>` +
-                `💡 重要提醒：遇到有人窒息，要马上找大人帮忙！<br>小朋友学会后，可以在大人做急救时帮忙拨打120！`;
-
-            modal.classList.add('show');
-        }
-
-        // 关闭弹窗
-        function closeModal() {
-            document.getElementById('resultModal').classList.remove('show');
-            initGame();
-        }
-
-        // 重新开始
-        function restartGame() {
-            initGame();
-        }
-
-        // 启动游戏
-        initGame();
-    </script>
+initGame();
+</script>
 </body>
 </html>
